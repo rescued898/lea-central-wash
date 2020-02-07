@@ -1,6 +1,7 @@
 package main
 
 import (
+	"C"
 	"context"
 	"database/sql"
 	"flag"
@@ -85,6 +86,10 @@ func init() { //nolint:gochecknoinits
 }
 
 func main() { //nolint:gocyclo
+	d := gui.NewDemo()
+	d.Run()
+	panic("quit")
+
 	flag.Usage = func() {
 		fmt.Printf("Usage of %s:\n", cmd)
 		flag.PrintDefaults()
