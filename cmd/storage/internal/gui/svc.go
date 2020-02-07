@@ -5,6 +5,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/app"
+
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/golang-ui/nuklear/nk"
@@ -53,15 +55,19 @@ type Demo struct {
 
 	maxVertexBuffer  int
 	maxElementBuffer int
+	app              app.App
+	info             string
+	updInfo          bool
 }
 
 // NewDemo is a constructor
-func NewDemo() *Demo {
+func NewDemo(app app.App) *Demo {
 	res := &Demo{
 		winWidth:         400,
 		winHeight:        500,
 		maxVertexBuffer:  512 * 1024,
 		maxElementBuffer: 128 * 1024,
+		app:              app,
 	}
 	return res
 }
@@ -114,10 +120,12 @@ func (d *Demo) Run() {
 	state := &State{
 		bgColor: nk.NkRgba(28, 48, 62, 255),
 	}
+
 	nk.NkTexteditInitDefault(&state.text)
 
+	go d.update()
+
 	fpsTicker := time.NewTicker(time.Second / 30)
-	//	go func() {
 	for {
 		select {
 		case <-exitC:
@@ -135,12 +143,24 @@ func (d *Demo) Run() {
 			d.gfxMain(win, ctx, state)
 		}
 	}
-	//	}()
+}
+
+func (d *Demo) update() {
+	for {
+		d.info = d.app.KasseInfo()
+		d.updInfo = true
+		time.Sleep(10 * time.Second)
+	}
 }
 
 func (d *Demo) gfxMain(win *glfw.Window, ctx *nk.Context, state *State) {
-	nk.NkPlatformNewFrame()
+	if d.updInfo {
+		nk.NkTexteditDelete(&state.text, 0, int32(len(state.text.GetGoString())))
+		nk.NkTexteditText(&state.text, d.info, int32(len(d.info)))
+		d.updInfo = false
+	}
 
+	nk.NkPlatformNewFrame()
 	// Layout
 	bounds := nk.NkRect(50, 50, 230, 250)
 	update := nk.NkBegin(ctx, "Demo", bounds,
