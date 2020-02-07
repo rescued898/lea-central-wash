@@ -1,31 +1,74 @@
 package gui
 
 import (
-	"C"
 	"log"
 	"runtime"
 	"time"
 
-	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/app"
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/golang-ui/nuklear/nk"
 	"github.com/xlab/closer"
 )
 
-const (
-	winWidth  = 400
-	winHeight = 500
-
-	maxVertexBuffer  = 512 * 1024
-	maxElementBuffer = 128 * 1024
-)
+// Demo ...
 
 func init() {
 	runtime.LockOSThread()
 }
 
-func New(appl app.App) {
+const (
+	// Easy is very easy ...
+	Easy Option = 0
+	// Hard is nearly impossible ...
+	Hard Option = 1
+)
+
+func b(v int32) bool {
+	return v == 1
+}
+
+func flag(v bool) int32 {
+	if v {
+		return 1
+	}
+	return 0
+}
+
+// State describes the state of the window
+type State struct {
+	bgColor nk.Color
+	prop    int32
+	opt     Option
+	text    nk.TextEdit
+}
+
+// Option describes an option value
+type Option uint8
+
+// Demo describes a demo
+type Demo struct {
+	winWidth  int
+	winHeight int
+
+	maxVertexBuffer  int
+	maxElementBuffer int
+}
+
+// NewDemo is a constructor
+func NewDemo() *Demo {
+	res := &Demo{
+		winWidth:         400,
+		winHeight:        500,
+		maxVertexBuffer:  512 * 1024,
+		maxElementBuffer: 128 * 1024,
+	}
+	return res
+}
+
+// Run runs the demo
+func (d *Demo) Run() {
+
 	if err := glfw.Init(); err != nil {
 		closer.Fatalln(err)
 	}
@@ -33,7 +76,7 @@ func New(appl app.App) {
 	glfw.WindowHint(glfw.ContextVersionMinor, 2)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	win, err := glfw.CreateWindow(winWidth, winHeight, "Nuklear Demo", nil, nil)
+	win, err := glfw.CreateWindow(d.winWidth, d.winHeight, "Nuklear Demo", nil, nil)
 	if err != nil {
 		closer.Fatalln(err)
 	}
@@ -88,12 +131,13 @@ func New(appl app.App) {
 				continue
 			}
 			glfw.PollEvents()
-			gfxMain(win, ctx, state)
+			d.gfxMain(win, ctx, state)
 		}
 	}
+
 }
 
-func gfxMain(win *glfw.Window, ctx *nk.Context, state *State) {
+func (d *Demo) gfxMain(win *glfw.Window, ctx *nk.Context, state *State) {
 	nk.NkPlatformNewFrame()
 
 	// Layout
@@ -160,24 +204,6 @@ func gfxMain(win *glfw.Window, ctx *nk.Context, state *State) {
 	gl.Viewport(0, 0, int32(width), int32(height))
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	gl.ClearColor(bg[0], bg[1], bg[2], bg[3])
-	nk.NkPlatformRender(nk.AntiAliasingOn, maxVertexBuffer, maxElementBuffer)
+	nk.NkPlatformRender(nk.AntiAliasingOn, d.maxVertexBuffer, d.maxElementBuffer)
 	win.SwapBuffers()
-}
-
-type Option uint8
-
-const (
-	Easy Option = 0
-	Hard Option = 1
-)
-
-type State struct {
-	bgColor nk.Color
-	prop    int32
-	opt     Option
-	text    nk.TextEdit
-}
-
-func onError(code int32, msg string) {
-	log.Printf("[glfw ERR]: error %d: %s", code, msg)
 }

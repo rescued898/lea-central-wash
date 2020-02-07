@@ -192,7 +192,8 @@ func run(db *sqlx.DB, errc chan<- error) {
 	}
 
 	appl := app.New(repo)
-	go gui.New(appl)
+	d := gui.NewDemo()
+	d.Run()
 
 	/*
 		err := gui.New(appl)
