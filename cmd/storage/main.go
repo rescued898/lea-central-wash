@@ -86,9 +86,9 @@ func init() { //nolint:gochecknoinits
 }
 
 func main() { //nolint:gocyclo
-	d := gui.NewDemo()
-	d.Run()
-	panic("quit")
+	//d := gui.NewDemo()
+	//d.Run()
+	//panic("quit")
 
 	flag.Usage = func() {
 		fmt.Printf("Usage of %s:\n", cmd)
@@ -137,10 +137,10 @@ func main() { //nolint:gocyclo
 	}
 
 	errc := make(chan error)
-	go run(db, errc)
-	if err := <-errc; err != nil {
-		log.Fatal(err)
-	}
+	run(db, errc)
+	//if err := <-errc; err != nil {
+	//	log.Fatal(err)
+	//}
 
 	cancel()
 	log.Info("finished", "version", ver)
