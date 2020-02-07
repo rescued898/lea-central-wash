@@ -18,6 +18,7 @@ import (
 	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/extapi"
 	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/flags"
 	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/goose"
+	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/gui"
 	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/memdb"
 	"github.com/DiaElectronics/lea-central-wash/cmd/storage/internal/migration"
 	"github.com/jmoiron/sqlx"
@@ -191,6 +192,15 @@ func run(db *sqlx.DB, errc chan<- error) {
 	}
 
 	appl := app.New(repo)
+	go gui.New(appl)
+
+	/*
+		err := gui.New(appl)
+		if err != nil {
+			errc <- err
+			return
+		}
+	*/
 
 	extsrv, err := extapi.NewServer(appl, cfg.extapi)
 	if err != nil {
