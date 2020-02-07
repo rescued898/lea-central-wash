@@ -197,8 +197,6 @@ func run(db *sqlx.DB, errc chan<- error) {
 	}
 
 	appl := app.New(repo)
-	d := gui.NewDemo()
-	d.Run()
 
 	/*
 		err := gui.New(appl)
@@ -214,5 +212,7 @@ func run(db *sqlx.DB, errc chan<- error) {
 		return
 	}
 	log.Info("serve Swagger REST protocol", def.LogHost, cfg.extapi.Host, def.LogPort, cfg.extapi.Port)
-	errc <- extsrv.Serve()
+	go func() { errc <- extsrv.Serve() }()
+	d := gui.NewDemo()
+	d.Run()
 }

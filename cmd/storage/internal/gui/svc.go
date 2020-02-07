@@ -117,25 +117,25 @@ func (d *Demo) Run() {
 	nk.NkTexteditInitDefault(&state.text)
 
 	fpsTicker := time.NewTicker(time.Second / 30)
-	go func() {
-		for {
-			select {
-			case <-exitC:
-				nk.NkPlatformShutdown()
-				glfw.Terminate()
-				fpsTicker.Stop()
-				close(doneC)
-				return
-			case <-fpsTicker.C:
-				if win.ShouldClose() {
-					close(exitC)
-					continue
-				}
-				glfw.PollEvents()
-				d.gfxMain(win, ctx, state)
+	//	go func() {
+	for {
+		select {
+		case <-exitC:
+			nk.NkPlatformShutdown()
+			glfw.Terminate()
+			fpsTicker.Stop()
+			close(doneC)
+			return
+		case <-fpsTicker.C:
+			if win.ShouldClose() {
+				close(exitC)
+				continue
 			}
+			glfw.PollEvents()
+			d.gfxMain(win, ctx, state)
 		}
-	}()
+	}
+	//	}()
 }
 
 func (d *Demo) gfxMain(win *glfw.Window, ctx *nk.Context, state *State) {
